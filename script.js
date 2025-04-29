@@ -1,51 +1,67 @@
-var canvas = document.querySelector('canvas')
-    canvas.style.position = 'relative'
-    canvas.style.top = "0"
-    canvas.style.left = "0"
-    canvas.width = 500
-    canvas.height = 350
+const canvas = document.querySelector('canvas')
+const ctx = canvas.getContext('2d')
 
-var ctx = canvas.getContext('2d')
+function resizeCanvas() {
+    const containerWidth = document.getElementById('canvas-wrap').offsetWidth
+    canvas.width = containerWidth
+    canvas.height = Math.min(350, containerWidth * 0.7)
     ctx.lineWidth = 3
     ctx.lineJoin = ctx.lineCap = 'round'
+}
+resizeCanvas()
 
-var isDrawing, drawLine
+let isDrawing = false
+let drawLine = { x: 0, y: 0 }
+
 canvas.onmousedown = (event) => {
     isDrawing = true
-    drawLine = { x: event.clientX, y: event.clientY }
+    drawLine = { x: event.offsetX, y: event.offsetY }
 }
 
 canvas.onmousemove = (event) => {
     if (!isDrawing) return
-
     ctx.beginPath()
-    
     ctx.moveTo(drawLine.x, drawLine.y)
-    ctx.lineTo(event.clientX, event.clientY)
+    ctx.lineTo(event.offsetX, event.offsetY)
     ctx.stroke()
-    
-    drawLine = { x: event.clientX, y: event.clientY }
+    drawLine = { x: event.offsetX, y: event.offsetY }
 }
 
 canvas.onmouseup = () => isDrawing = false
+canvas.onmouseleave = () => isDrawing = false
+
+// Touch support for mobile
+canvas.ontouchstart = (event) => {
+    event.preventDefault()
+    const touch = event.touches[0]
+    const rect = canvas.getBoundingClientRect()
+    isDrawing = true
+    drawLine = { x: touch.clientX - rect.left, y: touch.clientY - rect.top }
+}
+
+canvas.ontouchmove = (event) => {
+    event.preventDefault()
+    if (!isDrawing) return
+    const touch = event.touches[0]
+    const rect = canvas.getBoundingClientRect()
+    ctx.beginPath()
+    ctx.moveTo(drawLine.x, drawLine.y)
+    ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top)
+    ctx.stroke()
+    drawLine = { x: touch.clientX - rect.left, y: touch.clientY - rect.top }
+}
+
+canvas.ontouchend = () => isDrawing = false
 
 document.getElementById('clear').onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-window.onload = () => document.getElementById('download').onclick = () => download(canvas, 'signature.png')
-
-function download(canvas, filename) {
-    var lnk = document.createElement('a'), e
-        lnk.download = filename
-        lnk.href = canvas.toDataURL("image/pngbase64")
-    
-    if (document.createEvent) {
-    e = document.createEvent("MouseEvents")
-    e.initMouseEvent("click", true, true, window,
-                    0, 0, 0, 0, 0, false, false, false,
-                    false, 0, null)
-
-    lnk.dispatchEvent(e)
-    } else if (lnk.fireEvent) lnk.fireEvent("onclick")
+document.getElementById('download').onclick = () => {
+    const lnk = document.createElement('a')
+    lnk.download = 'signature.png'
+    lnk.href = canvas.toDataURL('image/png')
+    lnk.click()
 }
 
 document.addEventListener('contextmenu', (event) => event.preventDefault())
+
+window.addEventListener('resize', resizeCanvas)

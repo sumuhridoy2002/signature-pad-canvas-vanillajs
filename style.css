@@ -1,41 +1,54 @@
 body {
     height: 100vh;
+    margin: 0;
+    padding: 0;
 }
 
-canvas {  
+canvas {
     background-color: #fff;
     border-radius: 15px;
-    border: 5px solid black; 
+    border: 5px solid black;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
 }
 
 #canvas-wrap {
     position: relative;
-
+    text-align: center;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 #download, #clear {
-        position: relative;
-        top: 0;
-        padding: 10px;
-        background-color: #57c4e5;
-        border: 3px solid black;
-        color: black;
-        display: block-inline;
-        margin-top: 5px;
-        margin-right:5px;
-        transition: .3s;
-        }
+    padding: 10px;
+    background-color: #57c4e5;
+    border: 3px solid black;
+    color: black;
+    margin-top: 5px;
+    margin-right: 5px;
+    transition: .3s;
+    cursor: pointer;
+}
 
 #download:hover, #clear:hover {
     background-color: transparent;
 }
 
 #text {
-    position:relative;
     font-weight: bold;
+    margin: 10px 0;
 }
 
 #buttons {
-    width: 500px;
+    max-width: 500px;
+    margin: 0 auto;
     text-align: center;
+}
+
+@media (max-width: 600px) {
+    #buttons {
+        width: 100%;
+    }
 }
